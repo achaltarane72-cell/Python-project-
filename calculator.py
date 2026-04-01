@@ -1,58 +1,80 @@
-import tkinter as tk   # Import Tkinter library for GUI
+import tkinter as tk
 
-# Create main window
+# Main window
 root = tk.Tk()
-root.title("Simple Calculator")   # Window title
-root.geometry("320x400")          # Window size
+root.title("Calculator")
+root.geometry("320x420")
 
-# Create entry box to display numbers
+# Display
 entry = tk.Entry(root, font=("Arial", 20), bd=8, relief="ridge", justify="right")
 entry.pack(fill="both", ipadx=8, ipady=15, padx=10, pady=10)
 
-# Function to insert number/operator in entry box
+# Functions
 def press(value):
-    entry.insert(tk.END, value)
+    current = entry.get()
+    
+    # Operator replace
+    if current and current[-1] in "+-*/" and value in "+-*/":
+        entry.delete(len(current)-1, tk.END)
+        entry.insert(tk.END, value)
+    else:
+        entry.insert(tk.END, value)
 
-# Function to clear the entry box
 def clear():
     entry.delete(0, tk.END)
 
-# Function to calculate result
+def backspace():
+    current = entry.get()
+    entry.delete(0, tk.END)
+    entry.insert(0, current[:-1])
+
 def equal():
     try:
-        result = eval(entry.get())   # Evaluate the expression
-        entry.delete(0, tk.END)      # Clear entry
-        entry.insert(0, result)      # Show result
+        result = eval(entry.get())
+        entry.delete(0, tk.END)
+        entry.insert(0, result)
     except:
         entry.delete(0, tk.END)
-        entry.insert(0, "Error")     # Show error if invalid input
+        entry.insert(0, "Error")
 
-# Create frame for buttons
+# Frame
 frame = tk.Frame(root)
 frame.pack()
 
-# Button layout
-buttons = [
-    ['7','8','9','/'],
-    ['4','5','6','*'],
-    ['1','2','3','-'],
-    ['0','C','=','+']
-]
+# Helper to create button
+def create_btn(text, row, col, cmd, colspan=1):
+    btn = tk.Button(frame, text=text, width=5, height=2,
+                    font=("Arial", 14), command=cmd)
+    btn.grid(row=row, column=col, columnspan=colspan, padx=5, pady=5, sticky="nsew")
 
-# Create buttons using loop
-for i in range(4):
-    for j in range(4):
-        text = buttons[i][j]
-        
-        if text == "C":
-            btn = tk.Button(frame, text=text, width=5, height=2, command=clear)  # Clear button
-        elif text == "=":
-            btn = tk.Button(frame, text=text, width=5, height=2, command=equal)  # Equal button
-        else:
-            btn = tk.Button(frame, text=text, width=5, height=2,
-                            command=lambda t=text: press(t))  # Number/operator button
-        
-        btn.grid(row=i, column=j, padx=5, pady=5)  # Place button in grid
+# Row 1
+create_btn('7',0,0, lambda: press('7'))
+create_btn('8',0,1, lambda: press('8'))
+create_btn('9',0,2, lambda: press('9'))
+create_btn('/',0,3, lambda: press('/'))
 
-# Run the GUI window
+# Row 2
+create_btn('4',1,0, lambda: press('4'))
+create_btn('5',1,1, lambda: press('5'))
+create_btn('6',1,2, lambda: press('6'))
+create_btn('*',1,3, lambda: press('*'))
+
+# Row 3
+create_btn('1',2,0, lambda: press('1'))
+create_btn('2',2,1, lambda: press('2'))
+create_btn('3',2,2, lambda: press('3'))
+create_btn('-',2,3, lambda: press('-'))
+
+# Row 4
+create_btn('0',3,0, lambda: press('0'))
+create_btn('.',3,1, lambda: press('.'))
+create_btn('C',3,2, clear)
+create_btn('+',3,3, lambda: press('+'))
+
+# Row 5 (Special layout)
+create_btn('X',4,0, backspace)
+create_btn('=',4,1, equal, colspan=2)   # BIG "=" button
+# last column empty automatically
+
+# Run
 root.mainloop()
